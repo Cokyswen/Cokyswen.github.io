@@ -1,0 +1,310 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8" />
+        <title>Linux内核源码编译&amp;Busybox文件系统 | 文小尘的零度空间</title>
+        <meta name="author" content="文昕尘" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+        <link rel="icon" href="/images/favicon.png" />
+        <script src="https://cdn.staticfile.org/vue/3.3.4/vue.global.prod.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="/css/fonts.min.css" />
+<script> const mixins = {}; </script>
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+
+
+<script src="https://cdn.staticfile.org/highlight.js/11.8.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.org/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://cdn.staticfile.org/highlight.js/11.8.0/styles/github.min.css"
+/>
+<script src="/js/lib/highlight.js"></script>
+
+
+
+<script src="/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css" />
+
+    <meta name="generator" content="Hexo 6.3.0"></head>
+    <body>
+        <div id="layout">
+            <transition name="fade">
+                <div id="loading" v-show="loading">
+                    <div id="loading-circle">
+                        <h2>LOADING</h2>
+                        <p>加载过慢请开启缓存 浏览器默认开启</p>
+                        <img src="/images/loading.gif" />
+                    </div>
+                </div>
+            </transition>
+            <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
+    <nav id="desktop-menu">
+        <a class="title" href="/">
+            <span>文小尘的零度空间</span>
+        </a>
+        
+        <a href="/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+    </nav>
+    <nav id="mobile-menu">
+        <div class="title" @click="showMenuItems = !showMenuItems">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;文小尘的零度空间</span>
+        </div>
+        <transition name="slide">
+            <div class="items" v-show="showMenuItems">
+                
+                <a href="/">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-house fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                    </div>
+                </a>
+                
+                <a href="/archives">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-box-archive fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                    </div>
+                </a>
+                
+                <a href="/categories">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-bookmark fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                    </div>
+                </a>
+                
+                <a href="/tags">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-tags fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                    </div>
+                </a>
+                
+            </div>
+        </transition>
+    </nav>
+</div>
+<transition name="fade">
+    <div id="menu-curtain" @click="showMenuItems = !showMenuItems" v-show="showMenuItems"></div>
+</transition>
+
+            <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
+                <div class="article">
+    <div>
+        <h1>Linux内核源码编译&amp;Busybox文件系统</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/7/26
+        </span>
+        
+        <span class="category">
+            <a href="/categories/Operating-System/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Operating System
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            
+            <span class="tag">
+                
+                <a href="/tags/Linux/" style="color: #00a596">Linux</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/Busybox/" style="color: #ffa2c4">Busybox</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/Kernel/" style="color: #ff7d73">Kernel</a>
+            </span>
+            
+        </span>
+        
+    </div>
+    
+    <div class="content" v-pre>
+        <span id="more"></span>
+<h2 id="Linux内核编译"><a href="#Linux内核编译" class="headerlink" title="Linux内核编译"></a>Linux内核编译</h2><h3 id="编译前准备"><a href="#编译前准备" class="headerlink" title="编译前准备"></a>编译前准备</h3><p>一些简单的Linux命令，shell脚本的知识点： [相关知识]<br><br>makefile： <a href="../08/3840c82572a9.html">相关知识</a><br><br>Linux内核源码: <a target="_blank" rel="noopener" href="https://www.kernel.org/">内核官网</a></p>
+<p>源码下载后解压</p>
+<pre><code class="bash">$ tar -xf linux-5.10.186.tar.gz
+</code></pre>
+<h3 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h3><ol>
+<li>指定硬件体系架构,本例中是x86的环境:</li>
+</ol>
+<pre><code class="bash">$ export ARCH=x86
+</code></pre>
+<ol start="2">
+<li>配置board config,一般在arch&#x2F;$ARCH&#x2F;configs&#x2F;目录下:</li>
+</ol>
+<pre><code class="bash">$ make x86_64_defconfig
+</code></pre>
+<ol start="3">
+<li>配置内核支持RAM disk驱动:<br>首先配置:General setup -&gt; Initial RAM….<br>然后配置:Device Drivers -&gt; Block devices -&gt; RAM block device support。</li>
+</ol>
+<pre><code class="bash">$ make menuconfig
+</code></pre>
+<p><img src="/2023/07/f0cf423fcfa6/make_menuconfig_linux.png" alt="img"></p>
+<ol start="4">
+<li>编译,内核完成放置在：arch&#x2F;x86_64&#x2F;boot&#x2F;bzImage。</li>
+</ol>
+<pre><code class="bash">$ make
+</code></pre>
+<h2 id="编译Busybox文件系统"><a href="#编译Busybox文件系统" class="headerlink" title="编译Busybox文件系统"></a>编译Busybox文件系统</h2><h3 id="编译前准备-1"><a href="#编译前准备-1" class="headerlink" title="编译前准备"></a>编译前准备</h3><p>busybox源码下载:<a target="_blank" rel="noopener" href="https://www.busybox.net/">官网</a></p>
+<p>解压:</p>
+<pre><code class="bash">$ tar -xvf busybox-1.36.0.tar.bz2
+</code></pre>
+<h3 id="编译-1"><a href="#编译-1" class="headerlink" title="编译"></a>编译</h3><ol>
+<li>配置;先将busybox配置为静态编译</li>
+</ol>
+<pre><code class="bash">$ make menuconfig
+</code></pre>
+<p><img src="/2023/07/f0cf423fcfa6/make_menuconfig_busybox.png" alt="img"></p>
+<ol start="2">
+<li>编译安装, 完成后的busybox安装在源码目录下的_install目录</li>
+</ol>
+<pre><code class="bash">$ make &amp;&amp; make install
+</code></pre>
+<ol start="3">
+<li>进入_install目录中,补充部分文件与目录;以及编写启动时运行的一些文件</li>
+</ol>
+<pre><code class="bash">$ cd _install
+$ mkdir etc dev mnt
+$ mkdir -p proc sys tmp
+$ mkdir -p etc/init.d
+$ vim etc/fstab
+$ vim etc/init.d/rcS
+$ chmod 755 /etc/init.d/rcS
+$ vim etc/inittab
+$ chmod 755 etc/inittab
+$ cd dev
+$ mknod console c 5 1
+$ mknod null c 1 3
+$ mknod tty1 c 4 1
+</code></pre>
+<ol start="4">
+<li>制作根文件系统镜像文件,简单说来就是创建空文件,然后把根文件系统复制进去,最后打包.</li>
+</ol>
+<pre><code class="shell">#!/bin/bash
+rm -rf rootfs.ext3
+rm -rf fs
+dd if=/dev/zero of=./rootfs.ext3 bs=1M count=32
+mkfs.ext3 rootfs.ext3
+mkdir fs
+mount -o loop rootfs.ext3 ./fs
+cp -rf ./_install/* ./fs
+umount ./fs
+gzip --best -c rootfs.ext3 &gt; rootfs.img.gz
+</code></pre>
+<h2 id="QEMU测试"><a href="#QEMU测试" class="headerlink" title="QEMU测试"></a>QEMU测试</h2><ol>
+<li>使用qemu,用指定的kernel,以及文件系统进行启动.</li>
+</ol>
+<pre><code class="bash">$ qemu-system-x86_64 \
+ -kernel ./linux-5.10.186/arch/x86_64/boot/bzImage \
+ -initrd ./busybox-1.36.0/rootfs.img.gz \
+ -append &quot;root=/dev/ram init=/linuxrc&quot; \
+ -serial file:output.txt
+</code></pre>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+                <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2023 - 2023 文小尘的零度空间
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;文昕尘
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/theme-particlex/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+            </div>
+            
+            <transition name="fade">
+                <div id="preview" ref="preview" v-show="previewShow">
+                    <img id="preview-content" ref="previewContent" />
+                </div>
+            </transition>
+            
+        </div>
+        <script src="/js/main.js"></script>
+        
+        
+
+
+
+
+        
+    </body>
+</html>

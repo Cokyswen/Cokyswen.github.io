@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8" />
+        <title>makefile 入门学习篇(1) | 文小尘的零度空间</title>
+        <meta name="author" content="文昕尘" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+        <link rel="icon" href="/images/favicon.png" />
+        <script src="https://cdn.staticfile.org/vue/3.3.4/vue.global.prod.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="/css/fonts.min.css" />
+<script> const mixins = {}; </script>
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+
+
+<script src="https://cdn.staticfile.org/highlight.js/11.8.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.org/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://cdn.staticfile.org/highlight.js/11.8.0/styles/github.min.css"
+/>
+<script src="/js/lib/highlight.js"></script>
+
+
+
+<script src="/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css" />
+
+    <meta name="generator" content="Hexo 6.3.0"></head>
+    <body>
+        <div id="layout">
+            <transition name="fade">
+                <div id="loading" v-show="loading">
+                    <div id="loading-circle">
+                        <h2>LOADING</h2>
+                        <p>加载过慢请开启缓存 浏览器默认开启</p>
+                        <img src="/images/loading.gif" />
+                    </div>
+                </div>
+            </transition>
+            <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
+    <nav id="desktop-menu">
+        <a class="title" href="/">
+            <span>文小尘的零度空间</span>
+        </a>
+        
+        <a href="/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+    </nav>
+    <nav id="mobile-menu">
+        <div class="title" @click="showMenuItems = !showMenuItems">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;文小尘的零度空间</span>
+        </div>
+        <transition name="slide">
+            <div class="items" v-show="showMenuItems">
+                
+                <a href="/">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-house fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                    </div>
+                </a>
+                
+                <a href="/archives">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-box-archive fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                    </div>
+                </a>
+                
+                <a href="/categories">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-bookmark fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                    </div>
+                </a>
+                
+                <a href="/tags">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-tags fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                    </div>
+                </a>
+                
+            </div>
+        </transition>
+    </nav>
+</div>
+<transition name="fade">
+    <div id="menu-curtain" @click="showMenuItems = !showMenuItems" v-show="showMenuItems"></div>
+</transition>
+
+            <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
+                <div class="article">
+    <div>
+        <h1>makefile 入门学习篇(1)</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/8/6
+        </span>
+        
+        <span class="category">
+            <a href="/categories/Script-Tools/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Script Tools
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            
+            <span class="tag">
+                
+                <a href="/tags/makefile/" style="color: #00a596">makefile</a>
+            </span>
+            
+        </span>
+        
+    </div>
+    
+    <div class="content" v-pre>
+        <span id="more"></span>
+
+<h2 id="makefile"><a href="#makefile" class="headerlink" title="makefile"></a>makefile</h2><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>先了解下make,make是用于自动化编译代码的一种工具软件,构建生成目标文件,也就是target;它通过makefile文件来确定target文件的依赖关系,然后把生成target的相关命令传给shell执行;所以,makefile就是一种描述目标,依赖以及生成命令的文件.</p>
+<h3 id="manfile文件编写"><a href="#manfile文件编写" class="headerlink" title="manfile文件编写"></a>manfile文件编写</h3><h4 id="格式"><a href="#格式" class="headerlink" title="格式:"></a>格式:</h4><pre><code class="makefile"># 用“#”号表明注释。.. ...受到.
+target（要生成的文件）: dependencies（被依赖的文件）
+# 命令前面用的是“tab”而非空格。误用空格是初学者容易犯的错误！
+(Tab ↹)command1
+(Tab ↹)command2
+(Tab ↹)command3
+  .
+  .
+(Tab ↹)commandn
+# 可以使用“\”表示续行。注意，“\”之后不能有空格！
+</code></pre>
+<ol>
+<li>target:生成的文件的名字，摆放的顺序不重要，但第一个target是默认的target。当make不带参数时，自动执行第一个target。target也可以是要求make完成的动作，执行这种target后并不能得到和target同名的文件，因此，也称为伪target(phony target)</li>
+<li>dependencies:生成target所需的文件名列表。依赖可为空,若依赖不为空，则make会先检查依赖的“规则”。依赖规定了何时重新执行target下命令。若任何依赖比target更新（由于执行了依赖的“规则”的命令或用户修改了依赖），make则会重新执行target下的命令</li>
+<li>command: shell可运行的命令</li>
+</ol>
+<h4 id="目标与依赖"><a href="#目标与依赖" class="headerlink" title="目标与依赖"></a>目标与依赖</h4><h5 id="编译用例"><a href="#编译用例" class="headerlink" title="编译用例"></a>编译用例</h5><p>编写makefile.(加”@”,不显示shell命令)</p>
+<pre><code class="makefile">echo1: echo2 echo4
+  @echo &quot;echo1&quot;
+echo2: echo3
+  @echo &quot;echo2&quot;
+echo3:
+  @echo &quot;echo3&quot;
+echo4:
+  @echo &quot;echo4&quot;
+</code></pre>
+<p>运行make后,输出</p>
+<pre><code class="text">echo3
+echo2
+echo4
+echo1
+</code></pre>
+<h5 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h5><p>从上述例子可以看出,在make编写目标前,会先去寻找依赖文件(上述中没有中间文件生成,所以每次都编译依赖目标),流程如下:</p>
+<ol>
+<li>先扫描echo1的依赖:echo2,echo4</li>
+<li>扫描echo2的依赖-&gt;扫描echo3的依赖,没有或全在就执行echo3的命令,返回执行echo2的命令</li>
+<li>扫描echo4的依赖,没有或全在就执行echo4的命令</li>
+<li>echo1的依赖齐全,执行echo1的命令</li>
+</ol>
+<h4 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h4><p>变量的定义很简单，就是⼀个名字（变量名）后⾯跟上⼀个等号,然后在等号的后⾯放这个变量所期望的值.对于变量的引⽤,则需要采⽤$(变量名)或者${变量名}这种模式.</p>
+<h5 id="自动变量"><a href="#自动变量" class="headerlink" title="自动变量"></a>自动变量</h5><ol>
+<li>“$@”:表示⼀个规则中的⽬标.当我们的⼀个规则中有多个⽬标时,$@所指的是其中任何造成命令被运⾏的⽬标.</li>
+<li>“$^”:表示的是规则中的所有先择条件.</li>
+<li>“$&lt;”:表示的是规则中的第⼀个先决条件.</li>
+</ol>
+<pre><code class="makefile">all:first second third
+    @echo &quot;\$$@ = $@&quot;
+    @echo &quot;\$$^ = $^&quot;
+    @echo &quot;\$$&lt; = $&lt;&quot;
+</code></pre>
+<p>输出:</p>
+<pre><code class="text">$@ = all
+$^ = first second third
+$&lt; = first
+</code></pre>
+<h5 id="赋值符"><a href="#赋值符" class="headerlink" title="赋值符"></a>赋值符</h5><ol>
+<li>“&#x3D;”,赋值</li>
+</ol>
+<pre><code class="makefile">NAME = &quot;coky&quot;
+NAME = &quot;kiana&quot;
+all:
+  echo &quot;name = $(NAME)&quot;
+# 输出: name = kiana
+</code></pre>
+<ol start="2">
+<li>“:&#x3D;”,简单说来,就是make只对其扫描赋值一次.</li>
+</ol>
+<pre><code class="makefile">NAME := &quot;coky&quot;
+NAME := &quot;kiana&quot;
+all:
+  echo &quot;name = $(NAME)&quot;
+# 输出: name = coky
+</code></pre>
+<ol start="3">
+<li>“?&#x3D;”,判断当前变量是否定义,没定义就赋值,定义了就不改变.</li>
+</ol>
+<pre><code class="makefile">NAME = &quot;coky&quot;
+NAME ?= &quot;kiana&quot;
+AGE ?= 1
+all:
+  echo &quot;name = $(NAME), age = $(AGE)&quot;
+# 输出: name = coky, age = 1
+</code></pre>
+<ol start="4">
+<li>“+&#x3D;”,在原先的值后面追加赋值</li>
+</ol>
+<pre><code class="makefile">NAME = &quot;coky&quot;
+NAME += &quot;kiana&quot;
+all:
+  echo &quot;name = $(NAME)&quot;
+# 输出: name = coky kiana
+</code></pre>
+<h3 id="结束"><a href="#结束" class="headerlink" title="结束"></a>结束</h3><p>这篇,简单记录了makefile的格式,以及编写规则;再然后就是自动变量以及变量的赋值符的使用.</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+                <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2023 - 2023 文小尘的零度空间
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;文昕尘
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/theme-particlex/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+            </div>
+            
+            <transition name="fade">
+                <div id="preview" ref="preview" v-show="previewShow">
+                    <img id="preview-content" ref="previewContent" />
+                </div>
+            </transition>
+            
+        </div>
+        <script src="/js/main.js"></script>
+        
+        
+
+
+
+
+        
+    </body>
+</html>

@@ -1,0 +1,370 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8" />
+        <title>编写一个简单的内核驱动 | 文小尘的零度空间</title>
+        <meta name="author" content="文昕尘" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+        <link rel="icon" href="/images/favicon.png" />
+        <script src="https://cdn.staticfile.org/vue/3.3.4/vue.global.prod.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="/css/fonts.min.css" />
+<script> const mixins = {}; </script>
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+
+
+<script src="https://cdn.staticfile.org/highlight.js/11.8.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.org/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://cdn.staticfile.org/highlight.js/11.8.0/styles/github.min.css"
+/>
+<script src="/js/lib/highlight.js"></script>
+
+
+
+<script src="/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css" />
+
+    <meta name="generator" content="Hexo 6.3.0"></head>
+    <body>
+        <div id="layout">
+            <transition name="fade">
+                <div id="loading" v-show="loading">
+                    <div id="loading-circle">
+                        <h2>LOADING</h2>
+                        <p>加载过慢请开启缓存 浏览器默认开启</p>
+                        <img src="/images/loading.gif" />
+                    </div>
+                </div>
+            </transition>
+            <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
+    <nav id="desktop-menu">
+        <a class="title" href="/">
+            <span>文小尘的零度空间</span>
+        </a>
+        
+        <a href="/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+    </nav>
+    <nav id="mobile-menu">
+        <div class="title" @click="showMenuItems = !showMenuItems">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;文小尘的零度空间</span>
+        </div>
+        <transition name="slide">
+            <div class="items" v-show="showMenuItems">
+                
+                <a href="/">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-house fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                    </div>
+                </a>
+                
+                <a href="/archives">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-box-archive fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                    </div>
+                </a>
+                
+                <a href="/categories">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-bookmark fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                    </div>
+                </a>
+                
+                <a href="/tags">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-tags fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                    </div>
+                </a>
+                
+            </div>
+        </transition>
+    </nav>
+</div>
+<transition name="fade">
+    <div id="menu-curtain" @click="showMenuItems = !showMenuItems" v-show="showMenuItems"></div>
+</transition>
+
+            <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
+                <div class="article">
+    <div>
+        <h1>编写一个简单的内核驱动</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/7/29
+        </span>
+        
+        <span class="category">
+            <a href="/categories/Operating-System/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Operating System
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            
+            <span class="tag">
+                
+                <a href="/tags/C-Language/" style="color: #ffa2c4">C Language</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/Device-Driver/" style="color: #ff7d73">Device Driver</a>
+            </span>
+            
+        </span>
+        
+    </div>
+    
+    <div class="content" v-pre>
+        <span id="more"></span>
+
+<h3 id="编写驱动程序"><a href="#编写驱动程序" class="headerlink" title="编写驱动程序"></a>编写驱动程序</h3><h4 id="初始化函数"><a href="#初始化函数" class="headerlink" title="初始化函数"></a>初始化函数</h4><p>驱动程序的初始化函数,注册设备号,将字符设备文件与驱动中的设备操作联系,使用户访问字符设备文件时就能找到对于的file_operations进行操作,以字符驱动为例:</p>
+<ul>
+<li>根据定义的主次设备号创建设备号—dev_t</li>
+<li>注册字符设备编号—register_chrdev_region()</li>
+<li>初始化字符设备—cdev,将其与file_operations联系起来</li>
+<li>将字符设备加入内核—此处将cdev与设备号联系起来</li>
+</ul>
+<pre><code class="C">#define MYTESTDEV_MAJOR 168
+#define MYTESTDEV_MINOR 0
+
+struct cdev *gDev;
+struct file_operations *gFile;
+dev_t devNum;
+unsigned int subDevNum = 1;
+int __init hello_init(void)
+&#123;
+    devNum = MKDEV(MYTESTDEV_MAJOR, MYTESTDEV_MINOR);
+    if(OK == register_chrdev_region(devNum, subDevNum, &quot;helloworld&quot;))&#123;
+        printk(KERN_INFO &quot;register_chrdev_region ok \n&quot;);
+    &#125;else &#123;
+        printk(KERN_INFO &quot;register_chrdev_region error n&quot;);
+        return ERROR;
+    &#125;
+    printk(KERN_INFO &quot; hello driver init \n&quot;);
+
+    gDev = kzalloc(sizeof(struct cdev), GFP_KERNEL);
+    gFile = kzalloc(sizeof(struct file_operations), GFP_KERNEL);
+    gFile-&gt;open = hello_open;
+    gFile-&gt;read = hello_read;
+    gFile-&gt;write = hello_write;
+    gFile-&gt;owner = THIS_MODULE;
+
+    cdev_init(gDev, gFile);
+    cdev_add(gDev, devNum, 1);
+    return 0;
+&#125;
+</code></pre>
+<h4 id="设备操作函数"><a href="#设备操作函数" class="headerlink" title="设备操作函数"></a>设备操作函数</h4><p>实现设备操作的函数,简单实现,将分别将输入输出用printk打印出来看看,copy_from_user()与copy_to_user()涉及到内核态与用户态的问题将放后面去深入学习.</p>
+<ol>
+<li>open()</li>
+</ol>
+<pre><code class="C">int hello_open(struct inode *p, struct file *f)
+&#123;
+    printk(KERN_INFO &quot;hello_open\r\n&quot;);
+    return 0;
+&#125;
+</code></pre>
+<ol start="2">
+<li>write()</li>
+</ol>
+<pre><code class="C">ssize_t hello_write(struct file *f, const char __user *u, size_t count, loff_t *l)
+&#123;
+    int buf = 0;
+    if(copy_from_user(&amp;buf, u, count))&#123;
+        printk(KERN_INFO &quot;Write failed\r\n&quot;);
+        return count;
+    &#125;
+    printk(KERN_INFO &quot;write:buf-&gt;%d\r\n&quot;,buf);
+    return count;
+&#125;
+</code></pre>
+<ol start="3">
+<li>read()</li>
+</ol>
+<pre><code class="C">ssize_t hello_read(struct file *f, char __user *u, size_t s, loff_t *l)
+&#123;
+    int buf = 2;
+    if(copy_to_user(u, &amp;buf, sizeof(int)))&#123;
+        printk(KERN_INFO &quot;Write failed\r\n&quot;);
+        return 0;
+    &#125;
+    printk(KERN_INFO &quot;read:%d\r\n&quot;,buf);
+    return sizeof(int);
+&#125;
+</code></pre>
+<h4 id="注销驱动函数"><a href="#注销驱动函数" class="headerlink" title="注销驱动函数"></a>注销驱动函数</h4><p>注销,将初始化分配的内存释放,取消注册字符设备编号</p>
+<pre><code class="C">void __exit hello_exit(void)
+&#123;
+    printk(KERN_INFO &quot;hello driver exit\n&quot;);
+    cdev_del(gDev);
+    kfree(gFile);
+    kfree(gDev);
+    unregister_chrdev_region(devNum, subDevNum);
+    return;
+&#125;
+</code></pre>
+<h4 id="注册驱动模块"><a href="#注册驱动模块" class="headerlink" title="注册驱动模块"></a>注册驱动模块</h4><p>MODULE_LICENSE 许可证</p>
+<pre><code class="C">module_init(hello_init);
+module_exit(hello_exit);
+MODULE_LICENSE(&quot;GPL&quot;);
+</code></pre>
+<h3 id="编译驱动"><a href="#编译驱动" class="headerlink" title="编译驱动"></a>编译驱动</h3><p>编写makefile文件, 将其编译生成ko文件</p>
+<pre><code class="makefile">ifneq ($(KERNELRELEASE),)
+    obj-m := helloDev.o
+else
+    PWD := $(shell pwd)
+    KERNELDIR := /lib/modules/`uname -r`/build
+all:
+    make -C $(KERNELDIR) M=$(PWD)
+clean:
+    rm -rf *.o *.ko *.mod.c *.symvers *.c~ *~
+endif
+</code></pre>
+<h3 id="用户层编写程序来调用驱动"><a href="#用户层编写程序来调用驱动" class="headerlink" title="用户层编写程序来调用驱动"></a>用户层编写程序来调用驱动</h3><pre><code class="C">int main(int argc, char *argv[])
+&#123;
+    FILE* fd, i;
+    int r_len, w_len;
+
+    char buf[DATA_NUM]=&quot;hello world&quot;;
+    fd = open(&quot;/dev/hello&quot;, O_RDWR);
+    if(NULL == fd) &#123;
+        perror(&quot;open file error\r\n&quot;);
+        return -1;
+    &#125;
+    else &#123;
+        printf(&quot;open successe\r\n&quot;);
+    &#125;
+
+    w_len = write(fd, buf, DATA_NUM);
+    r_len = read(fd, buf, DATA_NUM);
+
+    return 0;
+&#125;
+</code></pre>
+<h3 id="将驱动载入内核进行测试"><a href="#将驱动载入内核进行测试" class="headerlink" title="将驱动载入内核进行测试"></a>将驱动载入内核进行测试</h3><ol>
+<li>将驱动载入内核,dmesg查看打印的信息</li>
+</ol>
+<pre><code class="shell">insmod hello.ko
+dmesg
+</code></pre>
+<ol start="2">
+<li>创建与驱动相关的设备文件节点,对应驱动的主次设备号,</li>
+</ol>
+<pre><code class="shell">mknod /dev/hello c 168 0
+dmesg
+</code></pre>
+<ol start="3">
+<li>移除驱动</li>
+</ol>
+<pre><code class="shell">rmmod hello.ko
+dmesg
+</code></pre>
+<h3 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h3><pre><code class="shell">shutdown -h now
+</code></pre>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+                <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2023 - 2023 文小尘的零度空间
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;文昕尘
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/theme-particlex/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+            </div>
+            
+            <transition name="fade">
+                <div id="preview" ref="preview" v-show="previewShow">
+                    <img id="preview-content" ref="previewContent" />
+                </div>
+            </transition>
+            
+        </div>
+        <script src="/js/main.js"></script>
+        
+        
+
+
+
+
+        
+    </body>
+</html>
