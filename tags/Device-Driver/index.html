@@ -1,27 +1,28 @@
 
 <!DOCTYPE html>
 <html lang="zh-CN">
-    <head>
-        <meta charset="utf-8" />
-        <title>Tags: Device Driver | 文小尘的零度空间</title>
-        <meta name="author" content="文昕尘" />
-        <meta name="description" content="" />
-        <meta name="keywords" content="" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-        <link rel="icon" href="/images/favicon.png" />
-        <script src="https://cdn.staticfile.org/vue/3.3.4/vue.global.prod.min.js"></script>
-<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" />
-<link rel="stylesheet" href="/css/fonts.min.css" />
+<head>
+    <meta charset="utf-8" />
+    <title>Tags: Device Driver | 文小尘的零度空间</title>
+    <meta name="author" content="文昕尘" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <link rel="icon" href="/images/avatar.jpg" />
+    <link rel="preconnect" href="https://s4.zstatic.net" />
+<script src="https://s4.zstatic.net/ajax/libs/vue/3.3.7/vue.global.prod.min.js"></script>
+<link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<link rel="preconnect" href="https://fonts.loli.net" />
+<link rel="preconnect" href="https://gstatic.loli.net" crossorigin />
+<link rel="stylesheet" href="https://fonts.loli.net/css2?family=Fira+Code:wght@400;500;600;700&family=Lexend:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;800;900&display=swap" />
 <script> const mixins = {}; </script>
 
-<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 
-
-<script src="https://cdn.staticfile.org/highlight.js/11.8.0/highlight.min.js"></script>
-<script src="https://cdn.staticfile.org/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+<script src="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://s4.zstatic.net/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
 <link
     rel="stylesheet"
-    href="https://cdn.staticfile.org/highlight.js/11.8.0/styles/github.min.css"
+    href="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
 />
 <script src="/js/lib/highlight.js"></script>
 
@@ -35,19 +36,19 @@
 
 <link rel="stylesheet" href="/css/main.css" />
 
-    <meta name="generator" content="Hexo 6.3.0"></head>
-    <body>
-        <div id="layout">
-            <transition name="fade">
-                <div id="loading" v-show="loading">
-                    <div id="loading-circle">
-                        <h2>LOADING</h2>
-                        <p>加载过慢请开启缓存 浏览器默认开启</p>
-                        <img src="/images/loading.gif" />
-                    </div>
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+    <div id="layout">
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>加载过慢请开启缓存 浏览器默认开启</p>
+                    <img src="/images/loading.gif" />
                 </div>
-            </transition>
-            <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
+            </div>
+        </transition>
+        <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
     <nav id="desktop-menu">
         <a class="title" href="/">
             <span>文小尘的零度空间</span>
@@ -126,10 +127,54 @@
     <div id="menu-curtain" @click="showMenuItems = !showMenuItems" v-show="showMenuItems"></div>
 </transition>
 
-            <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
-                <div id="archives">
+        <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
+            <div id="archives">
     
     <div class="categories-tags">
+        
+        
+        
+        <span>
+            <a href="/tags/Linux/" style="background: #ff7d73">
+                <span class="icon">
+                    <i class="fa-solid fa-tags fa-fw"></i>
+                </span>
+                Linux
+            </a>
+        </span>
+        
+        
+        
+        <span>
+            <a href="/tags/Busybox/" style="background: #ffa2c4">
+                <span class="icon">
+                    <i class="fa-solid fa-tags fa-fw"></i>
+                </span>
+                Busybox
+            </a>
+        </span>
+        
+        
+        
+        <span>
+            <a href="/tags/Kernel/" style="background: #03a9f4">
+                <span class="icon">
+                    <i class="fa-solid fa-tags fa-fw"></i>
+                </span>
+                Kernel
+            </a>
+        </span>
+        
+        
+        
+        <span>
+            <a href="/tags/MySQL/" style="background: #00a596">
+                <span class="icon">
+                    <i class="fa-solid fa-tags fa-fw"></i>
+                </span>
+                MySQL
+            </a>
+        </span>
         
         
         
@@ -158,77 +203,11 @@
         
         
         <span>
-            <a href="/tags/Linux/" style="background: #ffa2c4">
-                <span class="icon">
-                    <i class="fa-solid fa-tags fa-fw"></i>
-                </span>
-                Linux
-            </a>
-        </span>
-        
-        
-        
-        <span>
-            <a href="/tags/Busybox/" style="background: #ff7d73">
-                <span class="icon">
-                    <i class="fa-solid fa-tags fa-fw"></i>
-                </span>
-                Busybox
-            </a>
-        </span>
-        
-        
-        
-        <span>
-            <a href="/tags/Kernel/" style="background: #00bcd4">
-                <span class="icon">
-                    <i class="fa-solid fa-tags fa-fw"></i>
-                </span>
-                Kernel
-            </a>
-        </span>
-        
-        
-        
-        <span>
-            <a href="/tags/makefile/" style="background: #00a596">
+            <a href="/tags/makefile/" style="background: #ffa2c4">
                 <span class="icon">
                     <i class="fa-solid fa-tags fa-fw"></i>
                 </span>
                 makefile
-            </a>
-        </span>
-        
-        
-        
-        <span>
-            <a href="/tags/MySQL/" style="background: #03a9f4">
-                <span class="icon">
-                    <i class="fa-solid fa-tags fa-fw"></i>
-                </span>
-                MySQL
-            </a>
-        </span>
-        
-        
-        
-        <span>
-            <a href="/tags/tag/" style="background: #00bcd4">
-                <span class="icon">
-                    <i class="fa-solid fa-tags fa-fw"></i>
-                </span>
-                tag
-            </a>
-        </span>
-        
-        
-        
-        <span>
-            <a href="/tags/algorithm/" style="background: #ffa2c4">
-                <span class="icon">
-                    <i class="fa-solid fa-tags fa-fw"></i>
-                </span>
-                algorithm
             </a>
         </span>
         
@@ -262,12 +241,12 @@
                     
                     <span class="tag">
                         
-                        <a href="/tags/C-Language/" style="color: #ff7d73">C Language</a>
+                        <a href="/tags/C-Language/" style="color: #00a596">C Language</a>
                     </span>
                     
                     <span class="tag">
                         
-                        <a href="/tags/Device-Driver/" style="color: #00a596">Device Driver</a>
+                        <a href="/tags/Device-Driver/" style="color: #03a9f4">Device Driver</a>
                     </span>
                     
                 </span>
@@ -278,7 +257,7 @@
     
 </div>
 
-                <footer id="footer">
+            <footer id="footer">
     <div id="footer-wrap">
         <div>
             &copy;
@@ -296,16 +275,16 @@
     </div>
 </footer>
 
-            </div>
-            
-            <transition name="fade">
-                <div id="preview" ref="preview" v-show="previewShow">
-                    <img id="preview-content" ref="previewContent" />
-                </div>
-            </transition>
-            
         </div>
-        <script src="/js/main.js"></script>
         
-    </body>
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/js/main.js"></script>
+    
+</body>
 </html>

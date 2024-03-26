@@ -1,6 +1,241 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Linux内核源码编译&amp;Busybox文件系统</title>
+    <url>/2023/07/f0cf423fcfa6.html</url>
+    <content><![CDATA[<span id="more"></span>
+<h2 id="Linux内核编译"><a href="#Linux内核编译" class="headerlink" title="Linux内核编译"></a>Linux内核编译</h2><h3 id="编译前准备"><a href="#编译前准备" class="headerlink" title="编译前准备"></a>编译前准备</h3><p>一些简单的Linux命令，shell脚本的知识点： [相关知识]<br><br>makefile： <a href="../08/3840c82572a9.html">相关知识</a><br><br>Linux内核源码: <a href="https://www.kernel.org/">内核官网</a></p>
+<p>源码下载后解压</p>
+<pre><code class="bash">$ tar -xf linux-5.10.186.tar.gz
+</code></pre>
+<h3 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h3><ol>
+<li>指定硬件体系架构,本例中是x86的环境:</li>
+</ol>
+<pre><code class="bash">$ export ARCH=x86
+</code></pre>
+<ol start="2">
+<li>配置board config,一般在arch&#x2F;$ARCH&#x2F;configs&#x2F;目录下:</li>
+</ol>
+<pre><code class="bash">$ make x86_64_defconfig
+</code></pre>
+<ol start="3">
+<li>配置内核支持RAM disk驱动:<br>首先配置:General setup -&gt; Initial RAM….<br>然后配置:Device Drivers -&gt; Block devices -&gt; RAM block device support。</li>
+</ol>
+<pre><code class="bash">$ make menuconfig
+</code></pre>
+<p><img src="/2023/07/f0cf423fcfa6/make_menuconfig_linux.png" alt="img"></p>
+<ol start="4">
+<li>编译,内核完成放置在：arch&#x2F;x86_64&#x2F;boot&#x2F;bzImage。</li>
+</ol>
+<pre><code class="bash">$ make
+</code></pre>
+<h2 id="编译Busybox文件系统"><a href="#编译Busybox文件系统" class="headerlink" title="编译Busybox文件系统"></a>编译Busybox文件系统</h2><h3 id="编译前准备-1"><a href="#编译前准备-1" class="headerlink" title="编译前准备"></a>编译前准备</h3><p>busybox源码下载:<a href="https://www.busybox.net/">官网</a></p>
+<p>解压:</p>
+<pre><code class="bash">$ tar -xvf busybox-1.36.0.tar.bz2
+</code></pre>
+<h3 id="编译-1"><a href="#编译-1" class="headerlink" title="编译"></a>编译</h3><ol>
+<li>配置;先将busybox配置为静态编译</li>
+</ol>
+<pre><code class="bash">$ make menuconfig
+</code></pre>
+<p><img src="/2023/07/f0cf423fcfa6/make_menuconfig_busybox.png" alt="img"></p>
+<ol start="2">
+<li>编译安装, 完成后的busybox安装在源码目录下的_install目录</li>
+</ol>
+<pre><code class="bash">$ make &amp;&amp; make install
+</code></pre>
+<ol start="3">
+<li>进入_install目录中,补充部分文件与目录;以及编写启动时运行的一些文件</li>
+</ol>
+<pre><code class="bash">$ cd _install
+$ mkdir etc dev mnt
+$ mkdir -p proc sys tmp
+$ mkdir -p etc/init.d
+$ vim etc/fstab
+$ vim etc/init.d/rcS
+$ chmod 755 /etc/init.d/rcS
+$ vim etc/inittab
+$ chmod 755 etc/inittab
+$ cd dev
+$ mknod console c 5 1
+$ mknod null c 1 3
+$ mknod tty1 c 4 1
+</code></pre>
+<ol start="4">
+<li>制作根文件系统镜像文件,简单说来就是创建空文件,然后把根文件系统复制进去,最后打包.</li>
+</ol>
+<pre><code class="shell">#!/bin/bash
+rm -rf rootfs.ext3
+rm -rf fs
+dd if=/dev/zero of=./rootfs.ext3 bs=1M count=32
+mkfs.ext3 rootfs.ext3
+mkdir fs
+mount -o loop rootfs.ext3 ./fs
+cp -rf ./_install/* ./fs
+umount ./fs
+gzip --best -c rootfs.ext3 &gt; rootfs.img.gz
+</code></pre>
+<h2 id="QEMU测试"><a href="#QEMU测试" class="headerlink" title="QEMU测试"></a>QEMU测试</h2><ol>
+<li>使用qemu,用指定的kernel,以及文件系统进行启动.</li>
+</ol>
+<pre><code class="bash">$ qemu-system-x86_64 \
+ -kernel ./linux-5.10.186/arch/x86_64/boot/bzImage \
+ -initrd ./busybox-1.36.0/rootfs.img.gz \
+ -append &quot;root=/dev/ram init=/linuxrc&quot; \
+ -serial file:output.txt
+</code></pre>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Busybox</tag>
+        <tag>Kernel</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MySQL 入门使用篇(1)</title>
+    <url>/2023/07/eed8c013067e.html</url>
+    <content><![CDATA[<span id="more"></span>
+<h2 id="从建库到删库再到跑路"><a href="#从建库到删库再到跑路" class="headerlink" title="从建库到删库再到跑路"></a>从建库到删库再到跑路</h2><p>安装就不多记录了,不同系统不同方式,一般就两种</p>
+<ol>
+<li>通过系统的软件包管理工具进行一键安装</li>
+<li>官网&#x2F;镜像网站下载安装包手动安装</li>
+</ol>
+<h3 id="数据库基本操作"><a href="#数据库基本操作" class="headerlink" title="数据库基本操作"></a>数据库基本操作</h3><ol>
+<li>创建库<br>先看看创建数据库的语法格式,然后创建一个数据库test;</li>
+</ol>
+<pre><code class="MySQL">CREATE DATABASE [IF NOT EXISTS] &lt;数据库名&gt;
+[[DEFAULT] CHARACTER SET &lt;字符集名&gt;]
+[[DEFAULT] COLLATE &lt;校对规则名&gt;];
+
+CREATE DATABASE test;
+</code></pre>
+<ol start="2">
+<li>查看数据库<br>语法格式,然后输入查看下;</li>
+</ol>
+<pre><code class="MySQL">SHOW DATABASES [LIKE &#39;数据库名&#39;];
+
+show databases;
+</code></pre>
+<ol start="3">
+<li>修改数据库<br>修改数据库的语法格式,参数可选;尝试将之前创建的test数据库的字符集改为utf8;</li>
+</ol>
+<pre><code class="MySQL">ALTER DATABASE [数据库名] &#123;
+[ DEFAULT ] CHARACTER SET &lt;字符集名&gt; |
+[ DEFAULT ] COLLATE &lt;校对规则名&gt;&#125;
+
+ALTER DATABASE test CHARACTER SET utf8;
+</code></pre>
+<ol start="4">
+<li>选择数据库<br>use进行选择,之后表的操作都在选择的数据库下.</li>
+</ol>
+<pre><code class="MySQL">USE &lt;数据库名&gt;
+
+use test;
+</code></pre>
+<ol start="5">
+<li>删除数据库</li>
+</ol>
+<pre><code class="MySQL">DROP DATABASE [ IF EXISTS ] &lt;数据库名&gt;
+
+DROP DATABASE test;
+</code></pre>
+<h3 id="数据表基本操作"><a href="#数据表基本操作" class="headerlink" title="数据表基本操作"></a>数据表基本操作</h3><ol>
+<li>创建数据表</li>
+</ol>
+<pre><code class="MySQL">CREATE TABLE &lt;表名&gt; (
+  &lt;列名1&gt; &lt;类型1&gt; ,
+        .
+        .
+        .
+  &lt;列名n&gt; &lt;类型n&gt;
+)[表选项][分区选项];
+
+use test;
+CREATE TABLE user(
+  uid INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
+  age INT
+)
+</code></pre>
+<ol start="2">
+<li>修改数据表</li>
+</ol>
+<pre><code class="MySQL">ALTER TABLE &lt;表名&gt;  &#123; ADD COLUMN &lt;列名&gt; &lt;类型&gt;
+| CHANGE COLUMN &lt;旧列名&gt; &lt;新列名&gt; &lt;新列类型&gt;
+| ALTER COLUMN &lt;列名&gt; &#123; SET DEFAULT &lt;默认值&gt; | DROP DEFAULT &#125;
+| MODIFY COLUMN &lt;列名&gt; &lt;类型&gt;
+| DROP COLUMN &lt;列名&gt;
+| RENAME TO &lt;新表名&gt;
+| CHARACTER SET &lt;字符集名&gt;
+| COLLATE &lt;校对规则名&gt; &#125;
+
+ALTER TABLE user ADD COLUMN email VARCHAR(100);
+</code></pre>
+<ol start="3">
+<li>查看数据表的结构</li>
+</ol>
+<pre><code class="MySQL">DESCRIBE &lt;表名&gt;;
+
+DESCRIBE user;
+</code></pre>
+<ol start="4">
+<li>删除数据表</li>
+</ol>
+<pre><code class="MySQL">DROP TABLE [IF EXISTS] 表名1 [ ,表名2, 表名3 ...];
+
+DROP TABLE user;
+</code></pre>
+<h3 id="表内的数据进行增删改查"><a href="#表内的数据进行增删改查" class="headerlink" title="表内的数据进行增删改查"></a>表内的数据进行增删改查</h3><ol>
+<li>增</li>
+</ol>
+<pre><code class="MySQL">INSERT INTO &lt;表名&gt; [ &lt;列名1&gt; [ , … &lt;列名n&gt;] ] VALUES (值1) [… , (值n) ];
+
+INSERT INTO user (name, age) VALUES (&quot;coky&quot;, 24);
+</code></pre>
+<ol start="2">
+<li>查</li>
+</ol>
+<pre><code class="MySQL">SELECT &#123;* | &lt;字段列名&gt;&#125;
+[
+FROM &lt;表 1&gt;, &lt;表 2&gt;…
+[WHERE &lt;表达式&gt;
+[GROUP BY &lt;group by definition&gt;
+[HAVING &lt;expression&gt; [&#123;&lt;operator&gt; &lt;expression&gt;&#125;…]]
+[ORDER BY &lt;order by definition&gt;]
+[LIMIT[&lt;offset&gt;,] &lt;row count&gt;]
+]
+
+SELECT * FROM user;
+</code></pre>
+<ol start="3">
+<li>改</li>
+</ol>
+<pre><code class="MySQL">UPDATE &lt;表名&gt; SET 字段 1=值 1 [,字段 2=值 2… ] [WHERE 子句 ]
+[ORDER BY 子句] [LIMIT 子句]
+
+UPDATE user SET age = 25 WHERE uid = 1;
+</code></pre>
+<ol start="4">
+<li>删<br>删除数据注意条件,没条件就是全删.</li>
+</ol>
+<pre><code class="MySQL">DELETE FROM &lt;表名&gt; [WHERE 子句] [ORDER BY 子句] [LIMIT 子句]
+
+DELETE FROM user WHERE uid = 1;
+</code></pre>
+<h3 id="退出"><a href="#退出" class="headerlink" title="退出"></a>退出</h3><pre><code class="MySQL">quit;
+</code></pre>
+]]></content>
+      <categories>
+        <category>DataBase</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>编写一个简单的内核驱动</title>
     <url>/2023/07/b22d6d6bbb95.html</url>
     <content><![CDATA[<span id="more"></span>
@@ -160,100 +395,6 @@ dmesg
       </tags>
   </entry>
   <entry>
-    <title>Linux内核源码编译&amp;Busybox文件系统</title>
-    <url>/2023/07/f0cf423fcfa6.html</url>
-    <content><![CDATA[<span id="more"></span>
-<h2 id="Linux内核编译"><a href="#Linux内核编译" class="headerlink" title="Linux内核编译"></a>Linux内核编译</h2><h3 id="编译前准备"><a href="#编译前准备" class="headerlink" title="编译前准备"></a>编译前准备</h3><p>一些简单的Linux命令，shell脚本的知识点： [相关知识]<br><br>makefile： <a href="../08/3840c82572a9.html">相关知识</a><br><br>Linux内核源码: <a href="https://www.kernel.org/">内核官网</a></p>
-<p>源码下载后解压</p>
-<pre><code class="bash">$ tar -xf linux-5.10.186.tar.gz
-</code></pre>
-<h3 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h3><ol>
-<li>指定硬件体系架构,本例中是x86的环境:</li>
-</ol>
-<pre><code class="bash">$ export ARCH=x86
-</code></pre>
-<ol start="2">
-<li>配置board config,一般在arch&#x2F;$ARCH&#x2F;configs&#x2F;目录下:</li>
-</ol>
-<pre><code class="bash">$ make x86_64_defconfig
-</code></pre>
-<ol start="3">
-<li>配置内核支持RAM disk驱动:<br>首先配置:General setup -&gt; Initial RAM….<br>然后配置:Device Drivers -&gt; Block devices -&gt; RAM block device support。</li>
-</ol>
-<pre><code class="bash">$ make menuconfig
-</code></pre>
-<p><img src="/2023/07/f0cf423fcfa6/make_menuconfig_linux.png" alt="img"></p>
-<ol start="4">
-<li>编译,内核完成放置在：arch&#x2F;x86_64&#x2F;boot&#x2F;bzImage。</li>
-</ol>
-<pre><code class="bash">$ make
-</code></pre>
-<h2 id="编译Busybox文件系统"><a href="#编译Busybox文件系统" class="headerlink" title="编译Busybox文件系统"></a>编译Busybox文件系统</h2><h3 id="编译前准备-1"><a href="#编译前准备-1" class="headerlink" title="编译前准备"></a>编译前准备</h3><p>busybox源码下载:<a href="https://www.busybox.net/">官网</a></p>
-<p>解压:</p>
-<pre><code class="bash">$ tar -xvf busybox-1.36.0.tar.bz2
-</code></pre>
-<h3 id="编译-1"><a href="#编译-1" class="headerlink" title="编译"></a>编译</h3><ol>
-<li>配置;先将busybox配置为静态编译</li>
-</ol>
-<pre><code class="bash">$ make menuconfig
-</code></pre>
-<p><img src="/2023/07/f0cf423fcfa6/make_menuconfig_busybox.png" alt="img"></p>
-<ol start="2">
-<li>编译安装, 完成后的busybox安装在源码目录下的_install目录</li>
-</ol>
-<pre><code class="bash">$ make &amp;&amp; make install
-</code></pre>
-<ol start="3">
-<li>进入_install目录中,补充部分文件与目录;以及编写启动时运行的一些文件</li>
-</ol>
-<pre><code class="bash">$ cd _install
-$ mkdir etc dev mnt
-$ mkdir -p proc sys tmp
-$ mkdir -p etc/init.d
-$ vim etc/fstab
-$ vim etc/init.d/rcS
-$ chmod 755 /etc/init.d/rcS
-$ vim etc/inittab
-$ chmod 755 etc/inittab
-$ cd dev
-$ mknod console c 5 1
-$ mknod null c 1 3
-$ mknod tty1 c 4 1
-</code></pre>
-<ol start="4">
-<li>制作根文件系统镜像文件,简单说来就是创建空文件,然后把根文件系统复制进去,最后打包.</li>
-</ol>
-<pre><code class="shell">#!/bin/bash
-rm -rf rootfs.ext3
-rm -rf fs
-dd if=/dev/zero of=./rootfs.ext3 bs=1M count=32
-mkfs.ext3 rootfs.ext3
-mkdir fs
-mount -o loop rootfs.ext3 ./fs
-cp -rf ./_install/* ./fs
-umount ./fs
-gzip --best -c rootfs.ext3 &gt; rootfs.img.gz
-</code></pre>
-<h2 id="QEMU测试"><a href="#QEMU测试" class="headerlink" title="QEMU测试"></a>QEMU测试</h2><ol>
-<li>使用qemu,用指定的kernel,以及文件系统进行启动.</li>
-</ol>
-<pre><code class="bash">$ qemu-system-x86_64 \
- -kernel ./linux-5.10.186/arch/x86_64/boot/bzImage \
- -initrd ./busybox-1.36.0/rootfs.img.gz \
- -append &quot;root=/dev/ram init=/linuxrc&quot; \
- -serial file:output.txt
-</code></pre>
-]]></content>
-      <categories>
-        <category>Operating System</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Busybox</tag>
-        <tag>Kernel</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>makefile 入门学习篇(1)</title>
     <url>/2023/08/3840c82572a9.html</url>
     <content><![CDATA[<span id="more"></span>
@@ -358,171 +499,6 @@ all:
       </categories>
       <tags>
         <tag>makefile</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MySQL 入门使用篇(1)</title>
-    <url>/2023/07/eed8c013067e.html</url>
-    <content><![CDATA[<span id="more"></span>
-<h2 id="从建库到删库再到跑路"><a href="#从建库到删库再到跑路" class="headerlink" title="从建库到删库再到跑路"></a>从建库到删库再到跑路</h2><p>安装就不多记录了,不同系统不同方式,一般就两种</p>
-<ol>
-<li>通过系统的软件包管理工具进行一键安装</li>
-<li>官网&#x2F;镜像网站下载安装包手动安装</li>
-</ol>
-<h3 id="数据库基本操作"><a href="#数据库基本操作" class="headerlink" title="数据库基本操作"></a>数据库基本操作</h3><ol>
-<li>创建库<br>先看看创建数据库的语法格式,然后创建一个数据库test;</li>
-</ol>
-<pre><code class="MySQL">CREATE DATABASE [IF NOT EXISTS] &lt;数据库名&gt;
-[[DEFAULT] CHARACTER SET &lt;字符集名&gt;]
-[[DEFAULT] COLLATE &lt;校对规则名&gt;];
-
-CREATE DATABASE test;
-</code></pre>
-<ol start="2">
-<li>查看数据库<br>语法格式,然后输入查看下;</li>
-</ol>
-<pre><code class="MySQL">SHOW DATABASES [LIKE &#39;数据库名&#39;];
-
-show databases;
-</code></pre>
-<ol start="3">
-<li>修改数据库<br>修改数据库的语法格式,参数可选;尝试将之前创建的test数据库的字符集改为utf8;</li>
-</ol>
-<pre><code class="MySQL">ALTER DATABASE [数据库名] &#123;
-[ DEFAULT ] CHARACTER SET &lt;字符集名&gt; |
-[ DEFAULT ] COLLATE &lt;校对规则名&gt;&#125;
-
-ALTER DATABASE test CHARACTER SET utf8;
-</code></pre>
-<ol start="4">
-<li>选择数据库<br>use进行选择,之后表的操作都在选择的数据库下.</li>
-</ol>
-<pre><code class="MySQL">USE &lt;数据库名&gt;
-
-use test;
-</code></pre>
-<ol start="5">
-<li>删除数据库</li>
-</ol>
-<pre><code class="MySQL">DROP DATABASE [ IF EXISTS ] &lt;数据库名&gt;
-
-DROP DATABASE test;
-</code></pre>
-<h3 id="数据表基本操作"><a href="#数据表基本操作" class="headerlink" title="数据表基本操作"></a>数据表基本操作</h3><ol>
-<li>创建数据表</li>
-</ol>
-<pre><code class="MySQL">CREATE TABLE &lt;表名&gt; (
-  &lt;列名1&gt; &lt;类型1&gt; ,
-        .
-        .
-        .
-  &lt;列名n&gt; &lt;类型n&gt;
-)[表选项][分区选项];
-
-use test;
-CREATE TABLE user(
-  uid INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(50) NOT NULL,
-  age INT
-)
-</code></pre>
-<ol start="2">
-<li>修改数据表</li>
-</ol>
-<pre><code class="MySQL">ALTER TABLE &lt;表名&gt;  &#123; ADD COLUMN &lt;列名&gt; &lt;类型&gt;
-| CHANGE COLUMN &lt;旧列名&gt; &lt;新列名&gt; &lt;新列类型&gt;
-| ALTER COLUMN &lt;列名&gt; &#123; SET DEFAULT &lt;默认值&gt; | DROP DEFAULT &#125;
-| MODIFY COLUMN &lt;列名&gt; &lt;类型&gt;
-| DROP COLUMN &lt;列名&gt;
-| RENAME TO &lt;新表名&gt;
-| CHARACTER SET &lt;字符集名&gt;
-| COLLATE &lt;校对规则名&gt; &#125;
-
-ALTER TABLE user ADD COLUMN email VARCHAR(100);
-</code></pre>
-<ol start="3">
-<li>查看数据表的结构</li>
-</ol>
-<pre><code class="MySQL">DESCRIBE &lt;表名&gt;;
-
-DESCRIBE user;
-</code></pre>
-<ol start="4">
-<li>删除数据表</li>
-</ol>
-<pre><code class="MySQL">DROP TABLE [IF EXISTS] 表名1 [ ,表名2, 表名3 ...];
-
-DROP TABLE user;
-</code></pre>
-<h3 id="表内的数据进行增删改查"><a href="#表内的数据进行增删改查" class="headerlink" title="表内的数据进行增删改查"></a>表内的数据进行增删改查</h3><ol>
-<li>增</li>
-</ol>
-<pre><code class="MySQL">INSERT INTO &lt;表名&gt; [ &lt;列名1&gt; [ , … &lt;列名n&gt;] ] VALUES (值1) [… , (值n) ];
-
-INSERT INTO user (name, age) VALUES (&quot;coky&quot;, 24);
-</code></pre>
-<ol start="2">
-<li>查</li>
-</ol>
-<pre><code class="MySQL">SELECT &#123;* | &lt;字段列名&gt;&#125;
-[
-FROM &lt;表 1&gt;, &lt;表 2&gt;…
-[WHERE &lt;表达式&gt;
-[GROUP BY &lt;group by definition&gt;
-[HAVING &lt;expression&gt; [&#123;&lt;operator&gt; &lt;expression&gt;&#125;…]]
-[ORDER BY &lt;order by definition&gt;]
-[LIMIT[&lt;offset&gt;,] &lt;row count&gt;]
-]
-
-SELECT * FROM user;
-</code></pre>
-<ol start="3">
-<li>改</li>
-</ol>
-<pre><code class="MySQL">UPDATE &lt;表名&gt; SET 字段 1=值 1 [,字段 2=值 2… ] [WHERE 子句 ]
-[ORDER BY 子句] [LIMIT 子句]
-
-UPDATE user SET age = 25 WHERE uid = 1;
-</code></pre>
-<ol start="4">
-<li>删<br>删除数据注意条件,没条件就是全删.</li>
-</ol>
-<pre><code class="MySQL">DELETE FROM &lt;表名&gt; [WHERE 子句] [ORDER BY 子句] [LIMIT 子句]
-
-DELETE FROM user WHERE uid = 1;
-</code></pre>
-<h3 id="退出"><a href="#退出" class="headerlink" title="退出"></a>退出</h3><pre><code class="MySQL">quit;
-</code></pre>
-]]></content>
-      <categories>
-        <category>DataBase</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>algorithm</title>
-    <url>/2023/08/982eb24b9a50.html</url>
-    <content><![CDATA[<span id="more"></span>
-]]></content>
-      <categories>
-        <category>categories</category>
-      </categories>
-      <tags>
-        <tag>tag</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>algorithm</title>
-    <url>/2023/08/89f7ed5e96eb.html</url>
-    <content><![CDATA[<span id="more"></span>
-]]></content>
-      <categories>
-        <category>algorithm</category>
-      </categories>
-      <tags>
-        <tag>algorithm</tag>
       </tags>
   </entry>
 </search>
