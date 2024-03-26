@@ -1,100 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Linux内核源码编译&amp;Busybox文件系统</title>
-    <url>/2023/07/f0cf423fcfa6.html</url>
-    <content><![CDATA[<span id="more"></span>
-<h2 id="Linux内核编译"><a href="#Linux内核编译" class="headerlink" title="Linux内核编译"></a>Linux内核编译</h2><h3 id="编译前准备"><a href="#编译前准备" class="headerlink" title="编译前准备"></a>编译前准备</h3><p>一些简单的Linux命令，shell脚本的知识点： [相关知识]<br><br>makefile： <a href="../08/3840c82572a9.html">相关知识</a><br><br>Linux内核源码: <a href="https://www.kernel.org/">内核官网</a></p>
-<p>源码下载后解压</p>
-<pre><code class="bash">$ tar -xf linux-5.10.186.tar.gz
-</code></pre>
-<h3 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h3><ol>
-<li>指定硬件体系架构,本例中是x86的环境:</li>
-</ol>
-<pre><code class="bash">$ export ARCH=x86
-</code></pre>
-<ol start="2">
-<li>配置board config,一般在arch&#x2F;$ARCH&#x2F;configs&#x2F;目录下:</li>
-</ol>
-<pre><code class="bash">$ make x86_64_defconfig
-</code></pre>
-<ol start="3">
-<li>配置内核支持RAM disk驱动:<br>首先配置:General setup -&gt; Initial RAM….<br>然后配置:Device Drivers -&gt; Block devices -&gt; RAM block device support。</li>
-</ol>
-<pre><code class="bash">$ make menuconfig
-</code></pre>
-<p><img src="/2023/07/f0cf423fcfa6/make_menuconfig_linux.png" alt="img"></p>
-<ol start="4">
-<li>编译,内核完成放置在：arch&#x2F;x86_64&#x2F;boot&#x2F;bzImage。</li>
-</ol>
-<pre><code class="bash">$ make
-</code></pre>
-<h2 id="编译Busybox文件系统"><a href="#编译Busybox文件系统" class="headerlink" title="编译Busybox文件系统"></a>编译Busybox文件系统</h2><h3 id="编译前准备-1"><a href="#编译前准备-1" class="headerlink" title="编译前准备"></a>编译前准备</h3><p>busybox源码下载:<a href="https://www.busybox.net/">官网</a></p>
-<p>解压:</p>
-<pre><code class="bash">$ tar -xvf busybox-1.36.0.tar.bz2
-</code></pre>
-<h3 id="编译-1"><a href="#编译-1" class="headerlink" title="编译"></a>编译</h3><ol>
-<li>配置;先将busybox配置为静态编译</li>
-</ol>
-<pre><code class="bash">$ make menuconfig
-</code></pre>
-<p><img src="/2023/07/f0cf423fcfa6/make_menuconfig_busybox.png" alt="img"></p>
-<ol start="2">
-<li>编译安装, 完成后的busybox安装在源码目录下的_install目录</li>
-</ol>
-<pre><code class="bash">$ make &amp;&amp; make install
-</code></pre>
-<ol start="3">
-<li>进入_install目录中,补充部分文件与目录;以及编写启动时运行的一些文件</li>
-</ol>
-<pre><code class="bash">$ cd _install
-$ mkdir etc dev mnt
-$ mkdir -p proc sys tmp
-$ mkdir -p etc/init.d
-$ vim etc/fstab
-$ vim etc/init.d/rcS
-$ chmod 755 /etc/init.d/rcS
-$ vim etc/inittab
-$ chmod 755 etc/inittab
-$ cd dev
-$ mknod console c 5 1
-$ mknod null c 1 3
-$ mknod tty1 c 4 1
-</code></pre>
-<ol start="4">
-<li>制作根文件系统镜像文件,简单说来就是创建空文件,然后把根文件系统复制进去,最后打包.</li>
-</ol>
-<pre><code class="shell">#!/bin/bash
-rm -rf rootfs.ext3
-rm -rf fs
-dd if=/dev/zero of=./rootfs.ext3 bs=1M count=32
-mkfs.ext3 rootfs.ext3
-mkdir fs
-mount -o loop rootfs.ext3 ./fs
-cp -rf ./_install/* ./fs
-umount ./fs
-gzip --best -c rootfs.ext3 &gt; rootfs.img.gz
-</code></pre>
-<h2 id="QEMU测试"><a href="#QEMU测试" class="headerlink" title="QEMU测试"></a>QEMU测试</h2><ol>
-<li>使用qemu,用指定的kernel,以及文件系统进行启动.</li>
-</ol>
-<pre><code class="bash">$ qemu-system-x86_64 \
- -kernel ./linux-5.10.186/arch/x86_64/boot/bzImage \
- -initrd ./busybox-1.36.0/rootfs.img.gz \
- -append &quot;root=/dev/ram init=/linuxrc&quot; \
- -serial file:output.txt
-</code></pre>
-]]></content>
-      <categories>
-        <category>Operating System</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Busybox</tag>
-        <tag>Kernel</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>编写一个简单的内核驱动</title>
     <url>/2023/07/b22d6d6bbb95.html</url>
     <content><![CDATA[<span id="more"></span>
@@ -254,6 +160,207 @@ dmesg
       </tags>
   </entry>
   <entry>
+    <title>Linux内核源码编译&amp;Busybox文件系统</title>
+    <url>/2023/07/f0cf423fcfa6.html</url>
+    <content><![CDATA[<span id="more"></span>
+<h2 id="Linux内核编译"><a href="#Linux内核编译" class="headerlink" title="Linux内核编译"></a>Linux内核编译</h2><h3 id="编译前准备"><a href="#编译前准备" class="headerlink" title="编译前准备"></a>编译前准备</h3><p>一些简单的Linux命令，shell脚本的知识点： [相关知识]<br><br>makefile： <a href="../08/3840c82572a9.html">相关知识</a><br><br>Linux内核源码: <a href="https://www.kernel.org/">内核官网</a></p>
+<p>源码下载后解压</p>
+<pre><code class="bash">$ tar -xf linux-5.10.186.tar.gz
+</code></pre>
+<h3 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h3><ol>
+<li>指定硬件体系架构,本例中是x86的环境:</li>
+</ol>
+<pre><code class="bash">$ export ARCH=x86
+</code></pre>
+<ol start="2">
+<li>配置board config,一般在arch&#x2F;$ARCH&#x2F;configs&#x2F;目录下:</li>
+</ol>
+<pre><code class="bash">$ make x86_64_defconfig
+</code></pre>
+<ol start="3">
+<li>配置内核支持RAM disk驱动:<br>首先配置:General setup -&gt; Initial RAM….<br>然后配置:Device Drivers -&gt; Block devices -&gt; RAM block device support。</li>
+</ol>
+<pre><code class="bash">$ make menuconfig
+</code></pre>
+<p><img src="/2023/07/f0cf423fcfa6/make_menuconfig_linux.png" alt="img"></p>
+<ol start="4">
+<li>编译,内核完成放置在：arch&#x2F;x86_64&#x2F;boot&#x2F;bzImage。</li>
+</ol>
+<pre><code class="bash">$ make
+</code></pre>
+<h2 id="编译Busybox文件系统"><a href="#编译Busybox文件系统" class="headerlink" title="编译Busybox文件系统"></a>编译Busybox文件系统</h2><h3 id="编译前准备-1"><a href="#编译前准备-1" class="headerlink" title="编译前准备"></a>编译前准备</h3><p>busybox源码下载:<a href="https://www.busybox.net/">官网</a></p>
+<p>解压:</p>
+<pre><code class="bash">$ tar -xvf busybox-1.36.0.tar.bz2
+</code></pre>
+<h3 id="编译-1"><a href="#编译-1" class="headerlink" title="编译"></a>编译</h3><ol>
+<li>配置;先将busybox配置为静态编译</li>
+</ol>
+<pre><code class="bash">$ make menuconfig
+</code></pre>
+<p><img src="/2023/07/f0cf423fcfa6/make_menuconfig_busybox.png" alt="img"></p>
+<ol start="2">
+<li>编译安装, 完成后的busybox安装在源码目录下的_install目录</li>
+</ol>
+<pre><code class="bash">$ make &amp;&amp; make install
+</code></pre>
+<ol start="3">
+<li>进入_install目录中,补充部分文件与目录;以及编写启动时运行的一些文件</li>
+</ol>
+<pre><code class="bash">$ cd _install
+$ mkdir etc dev mnt
+$ mkdir -p proc sys tmp
+$ mkdir -p etc/init.d
+$ vim etc/fstab
+$ vim etc/init.d/rcS
+$ chmod 755 /etc/init.d/rcS
+$ vim etc/inittab
+$ chmod 755 etc/inittab
+$ cd dev
+$ mknod console c 5 1
+$ mknod null c 1 3
+$ mknod tty1 c 4 1
+</code></pre>
+<ol start="4">
+<li>制作根文件系统镜像文件,简单说来就是创建空文件,然后把根文件系统复制进去,最后打包.</li>
+</ol>
+<pre><code class="shell">#!/bin/bash
+rm -rf rootfs.ext3
+rm -rf fs
+dd if=/dev/zero of=./rootfs.ext3 bs=1M count=32
+mkfs.ext3 rootfs.ext3
+mkdir fs
+mount -o loop rootfs.ext3 ./fs
+cp -rf ./_install/* ./fs
+umount ./fs
+gzip --best -c rootfs.ext3 &gt; rootfs.img.gz
+</code></pre>
+<h2 id="QEMU测试"><a href="#QEMU测试" class="headerlink" title="QEMU测试"></a>QEMU测试</h2><ol>
+<li>使用qemu,用指定的kernel,以及文件系统进行启动.</li>
+</ol>
+<pre><code class="bash">$ qemu-system-x86_64 \
+ -kernel ./linux-5.10.186/arch/x86_64/boot/bzImage \
+ -initrd ./busybox-1.36.0/rootfs.img.gz \
+ -append &quot;root=/dev/ram init=/linuxrc&quot; \
+ -serial file:output.txt
+</code></pre>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Busybox</tag>
+        <tag>Kernel</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>makefile 入门学习篇(1)</title>
+    <url>/2023/08/3840c82572a9.html</url>
+    <content><![CDATA[<span id="more"></span>
+
+<h2 id="makefile"><a href="#makefile" class="headerlink" title="makefile"></a>makefile</h2><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>先了解下make,make是用于自动化编译代码的一种工具软件,构建生成目标文件,也就是target;它通过makefile文件来确定target文件的依赖关系,然后把生成target的相关命令传给shell执行;所以,makefile就是一种描述目标,依赖以及生成命令的文件.</p>
+<h3 id="manfile文件编写"><a href="#manfile文件编写" class="headerlink" title="manfile文件编写"></a>manfile文件编写</h3><h4 id="格式"><a href="#格式" class="headerlink" title="格式:"></a>格式:</h4><pre><code class="makefile"># 用“#”号表明注释。.. ...受到.
+target（要生成的文件）: dependencies（被依赖的文件）
+# 命令前面用的是“tab”而非空格。误用空格是初学者容易犯的错误！
+(Tab ↹)command1
+(Tab ↹)command2
+(Tab ↹)command3
+  .
+  .
+(Tab ↹)commandn
+# 可以使用“\”表示续行。注意，“\”之后不能有空格！
+</code></pre>
+<ol>
+<li>target:生成的文件的名字，摆放的顺序不重要，但第一个target是默认的target。当make不带参数时，自动执行第一个target。target也可以是要求make完成的动作，执行这种target后并不能得到和target同名的文件，因此，也称为伪target(phony target)</li>
+<li>dependencies:生成target所需的文件名列表。依赖可为空,若依赖不为空，则make会先检查依赖的“规则”。依赖规定了何时重新执行target下命令。若任何依赖比target更新（由于执行了依赖的“规则”的命令或用户修改了依赖），make则会重新执行target下的命令</li>
+<li>command: shell可运行的命令</li>
+</ol>
+<h4 id="目标与依赖"><a href="#目标与依赖" class="headerlink" title="目标与依赖"></a>目标与依赖</h4><h5 id="编译用例"><a href="#编译用例" class="headerlink" title="编译用例"></a>编译用例</h5><p>编写makefile.(加”@”,不显示shell命令)</p>
+<pre><code class="makefile">echo1: echo2 echo4
+  @echo &quot;echo1&quot;
+echo2: echo3
+  @echo &quot;echo2&quot;
+echo3:
+  @echo &quot;echo3&quot;
+echo4:
+  @echo &quot;echo4&quot;
+</code></pre>
+<p>运行make后,输出</p>
+<pre><code class="text">echo3
+echo2
+echo4
+echo1
+</code></pre>
+<h5 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h5><p>从上述例子可以看出,在make编写目标前,会先去寻找依赖文件(上述中没有中间文件生成,所以每次都编译依赖目标),流程如下:</p>
+<ol>
+<li>先扫描echo1的依赖:echo2,echo4</li>
+<li>扫描echo2的依赖-&gt;扫描echo3的依赖,没有或全在就执行echo3的命令,返回执行echo2的命令</li>
+<li>扫描echo4的依赖,没有或全在就执行echo4的命令</li>
+<li>echo1的依赖齐全,执行echo1的命令</li>
+</ol>
+<h4 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h4><p>变量的定义很简单，就是⼀个名字（变量名）后⾯跟上⼀个等号,然后在等号的后⾯放这个变量所期望的值.对于变量的引⽤,则需要采⽤$(变量名)或者${变量名}这种模式.</p>
+<h5 id="自动变量"><a href="#自动变量" class="headerlink" title="自动变量"></a>自动变量</h5><ol>
+<li>“$@”:表示⼀个规则中的⽬标.当我们的⼀个规则中有多个⽬标时,$@所指的是其中任何造成命令被运⾏的⽬标.</li>
+<li>“$^”:表示的是规则中的所有先择条件.</li>
+<li>“$&lt;”:表示的是规则中的第⼀个先决条件.</li>
+</ol>
+<pre><code class="makefile">all:first second third
+    @echo &quot;\$$@ = $@&quot;
+    @echo &quot;\$$^ = $^&quot;
+    @echo &quot;\$$&lt; = $&lt;&quot;
+</code></pre>
+<p>输出:</p>
+<pre><code class="text">$@ = all
+$^ = first second third
+$&lt; = first
+</code></pre>
+<h5 id="赋值符"><a href="#赋值符" class="headerlink" title="赋值符"></a>赋值符</h5><ol>
+<li>“&#x3D;”,赋值</li>
+</ol>
+<pre><code class="makefile">NAME = &quot;coky&quot;
+NAME = &quot;kiana&quot;
+all:
+  echo &quot;name = $(NAME)&quot;
+# 输出: name = kiana
+</code></pre>
+<ol start="2">
+<li>“:&#x3D;”,简单说来,就是make只对其扫描赋值一次.</li>
+</ol>
+<pre><code class="makefile">NAME := &quot;coky&quot;
+NAME := &quot;kiana&quot;
+all:
+  echo &quot;name = $(NAME)&quot;
+# 输出: name = coky
+</code></pre>
+<ol start="3">
+<li>“?&#x3D;”,判断当前变量是否定义,没定义就赋值,定义了就不改变.</li>
+</ol>
+<pre><code class="makefile">NAME = &quot;coky&quot;
+NAME ?= &quot;kiana&quot;
+AGE ?= 1
+all:
+  echo &quot;name = $(NAME), age = $(AGE)&quot;
+# 输出: name = coky, age = 1
+</code></pre>
+<ol start="4">
+<li>“+&#x3D;”,在原先的值后面追加赋值</li>
+</ol>
+<pre><code class="makefile">NAME = &quot;coky&quot;
+NAME += &quot;kiana&quot;
+all:
+  echo &quot;name = $(NAME)&quot;
+# 输出: name = coky kiana
+</code></pre>
+<h3 id="结束"><a href="#结束" class="headerlink" title="结束"></a>结束</h3><p>这篇,简单记录了makefile的格式,以及编写规则;再然后就是自动变量以及变量的赋值符的使用.</p>
+]]></content>
+      <categories>
+        <category>Script Tools</category>
+      </categories>
+      <tags>
+        <tag>makefile</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>MySQL 入门使用篇(1)</title>
     <url>/2023/07/eed8c013067e.html</url>
     <content><![CDATA[<span id="more"></span>
@@ -395,110 +502,27 @@ DELETE FROM user WHERE uid = 1;
       </tags>
   </entry>
   <entry>
-    <title>makefile 入门学习篇(1)</title>
-    <url>/2023/08/3840c82572a9.html</url>
+    <title>algorithm</title>
+    <url>/2023/08/982eb24b9a50.html</url>
     <content><![CDATA[<span id="more"></span>
-
-<h2 id="makefile"><a href="#makefile" class="headerlink" title="makefile"></a>makefile</h2><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>先了解下make,make是用于自动化编译代码的一种工具软件,构建生成目标文件,也就是target;它通过makefile文件来确定target文件的依赖关系,然后把生成target的相关命令传给shell执行;所以,makefile就是一种描述目标,依赖以及生成命令的文件.</p>
-<h3 id="manfile文件编写"><a href="#manfile文件编写" class="headerlink" title="manfile文件编写"></a>manfile文件编写</h3><h4 id="格式"><a href="#格式" class="headerlink" title="格式:"></a>格式:</h4><pre><code class="makefile"># 用“#”号表明注释。.. ...受到.
-target（要生成的文件）: dependencies（被依赖的文件）
-# 命令前面用的是“tab”而非空格。误用空格是初学者容易犯的错误！
-(Tab ↹)command1
-(Tab ↹)command2
-(Tab ↹)command3
-  .
-  .
-(Tab ↹)commandn
-# 可以使用“\”表示续行。注意，“\”之后不能有空格！
-</code></pre>
-<ol>
-<li>target:生成的文件的名字，摆放的顺序不重要，但第一个target是默认的target。当make不带参数时，自动执行第一个target。target也可以是要求make完成的动作，执行这种target后并不能得到和target同名的文件，因此，也称为伪target(phony target)</li>
-<li>dependencies:生成target所需的文件名列表。依赖可为空,若依赖不为空，则make会先检查依赖的“规则”。依赖规定了何时重新执行target下命令。若任何依赖比target更新（由于执行了依赖的“规则”的命令或用户修改了依赖），make则会重新执行target下的命令</li>
-<li>command: shell可运行的命令</li>
-</ol>
-<h4 id="目标与依赖"><a href="#目标与依赖" class="headerlink" title="目标与依赖"></a>目标与依赖</h4><h5 id="编译用例"><a href="#编译用例" class="headerlink" title="编译用例"></a>编译用例</h5><p>编写makefile.(加”@”,不显示shell命令)</p>
-<pre><code class="makefile">echo1: echo2 echo4
-  @echo &quot;echo1&quot;
-echo2: echo3
-  @echo &quot;echo2&quot;
-echo3:
-  @echo &quot;echo3&quot;
-echo4:
-  @echo &quot;echo4&quot;
-</code></pre>
-<p>运行make后,输出</p>
-<pre><code class="text">echo3
-echo2
-echo4
-echo1
-</code></pre>
-<h5 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h5><p>从上述例子可以看出,在make编写目标前,会先去寻找依赖文件(上述中没有中间文件生成,所以每次都编译依赖目标),流程如下:</p>
-<ol>
-<li>先扫描echo1的依赖:echo2,echo4</li>
-<li>扫描echo2的依赖-&gt;扫描echo3的依赖,没有或全在就执行echo3的命令,返回执行echo2的命令</li>
-<li>扫描echo4的依赖,没有或全在就执行echo4的命令</li>
-<li>echo1的依赖齐全,执行echo1的命令</li>
-</ol>
-<h4 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h4><p>变量的定义很简单，就是⼀个名字（变量名）后⾯跟上⼀个等号,然后在等号的后⾯放这个变量所期望的值.对于变量的引⽤,则需要采⽤$(变量名)或者${变量名}这种模式.</p>
-<h5 id="自动变量"><a href="#自动变量" class="headerlink" title="自动变量"></a>自动变量</h5><ol>
-<li>“$@”:表示⼀个规则中的⽬标.当我们的⼀个规则中有多个⽬标时,$@所指的是其中任何造成命令被运⾏的⽬标.</li>
-<li>“$^”:表示的是规则中的所有先择条件.</li>
-<li>“$&lt;”:表示的是规则中的第⼀个先决条件.</li>
-</ol>
-<pre><code class="makefile">all:first second third
-    @echo &quot;\$$@ = $@&quot;
-    @echo &quot;\$$^ = $^&quot;
-    @echo &quot;\$$&lt; = $&lt;&quot;
-</code></pre>
-<p>输出:</p>
-<pre><code class="text">$@ = all
-$^ = first second third
-$&lt; = first
-</code></pre>
-<h5 id="赋值符"><a href="#赋值符" class="headerlink" title="赋值符"></a>赋值符</h5><ol>
-<li>“&#x3D;”,赋值</li>
-</ol>
-<pre><code class="makefile">NAME = &quot;coky&quot;
-NAME = &quot;kiana&quot;
-all:
-  echo &quot;name = $(NAME)&quot;
-# 输出: name = kiana
-</code></pre>
-<ol start="2">
-<li>“:&#x3D;”,简单说来,就是make只对其扫描赋值一次.</li>
-</ol>
-<pre><code class="makefile">NAME := &quot;coky&quot;
-NAME := &quot;kiana&quot;
-all:
-  echo &quot;name = $(NAME)&quot;
-# 输出: name = coky
-</code></pre>
-<ol start="3">
-<li>“?&#x3D;”,判断当前变量是否定义,没定义就赋值,定义了就不改变.</li>
-</ol>
-<pre><code class="makefile">NAME = &quot;coky&quot;
-NAME ?= &quot;kiana&quot;
-AGE ?= 1
-all:
-  echo &quot;name = $(NAME), age = $(AGE)&quot;
-# 输出: name = coky, age = 1
-</code></pre>
-<ol start="4">
-<li>“+&#x3D;”,在原先的值后面追加赋值</li>
-</ol>
-<pre><code class="makefile">NAME = &quot;coky&quot;
-NAME += &quot;kiana&quot;
-all:
-  echo &quot;name = $(NAME)&quot;
-# 输出: name = coky kiana
-</code></pre>
-<h3 id="结束"><a href="#结束" class="headerlink" title="结束"></a>结束</h3><p>这篇,简单记录了makefile的格式,以及编写规则;再然后就是自动变量以及变量的赋值符的使用.</p>
 ]]></content>
       <categories>
-        <category>Script Tools</category>
+        <category>categories</category>
       </categories>
       <tags>
-        <tag>makefile</tag>
+        <tag>tag</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>algorithm</title>
+    <url>/2023/08/89f7ed5e96eb.html</url>
+    <content><![CDATA[<span id="more"></span>
+]]></content>
+      <categories>
+        <category>algorithm</category>
+      </categories>
+      <tags>
+        <tag>algorithm</tag>
       </tags>
   </entry>
 </search>
